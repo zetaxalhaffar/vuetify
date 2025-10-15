@@ -107,10 +107,16 @@ export const VMasonry = genericComponent<VMasonrySlots>()({
           })
         })
         swapy.value.onSwapStart(event => {
+          const currentItem = document.querySelector(`[data-swapy-item="${event.draggingItem}"]`)
           // eslint-disable-next-line no-console
-          console.log(event)
+          console.log(currentItem)
+          currentItem?.classList.add('masonry__column--dragging')
         })
         swapy.value.onSwapEnd(event => {
+          const currentItem = document.querySelectorAll('[data-swapy-item]')
+          currentItem.forEach(item => {
+            item.classList.remove('masonry__column--dragging')
+          })
           // eslint-disable-next-line no-console
           console.log(event)
         })
@@ -128,6 +134,7 @@ export const VMasonry = genericComponent<VMasonrySlots>()({
                 '--masonry-columns': props.items.length,
                 '--masonry-column-width': `${props.defaultHeight}px`,
                 '--masonry-column-gap': `${props.gap}px`,
+                '--masonry-item-gap': `${props.gap}px`,
                 '--masonry-sequential': props.sequential ? '1' : '0',
                 '--masonry-draggable': props.draggable ? '1' : '0',
               },

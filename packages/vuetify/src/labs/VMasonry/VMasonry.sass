@@ -3,6 +3,10 @@
   column-gap: var(--masonry-column-gap, 1rem)
   column-fill: balance
 
+  .masonry__column
+    break-inside: avoid
+    margin-bottom: var(--masonry-item-gap, 1rem)
+
   &[style*="--masonry-draggable: 1"]
     cursor: grab
 
@@ -12,3 +16,10 @@
   &[style*="--masonry-sequential: 1"]
     .masonry__column
       break-inside: avoid
+
+  &[style*="--masonry-draggable: 1"]
+    .masonry__column--dragging
+      opacity: 0.5
+      transform: rotate(10deg)
+      cursor: grabbing
+      transition: opacity 0.3s ease-in-out
