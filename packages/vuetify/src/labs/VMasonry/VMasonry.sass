@@ -1,0 +1,14 @@
+.masonry
+  columns: var(--masonry-columns, 6) var(--masonry-column-width, 200px)
+  column-gap: var(--masonry-column-gap, 1rem)
+  column-fill: balance
+
+  &[style*="--masonry-draggable: 1"]
+    cursor: grab
+
+    &:active
+      cursor: grabbing
+
+  &[style*="--masonry-sequential: 1"]
+    .masonry__column
+      break-inside: avoid

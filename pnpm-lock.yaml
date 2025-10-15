@@ -449,6 +449,10 @@ importers:
         version: 3.0.7(typescript@5.8.3)
 
   packages/vuetify:
+    dependencies:
+      swapy:
+        specifier: ^1.0.5
+        version: 1.0.5
     devDependencies:
       '@date-io/core':
         specifier: 3.2.0
@@ -7674,6 +7678,9 @@ packages:
     resolution: {integrity: sha512-OoohrmuUlBs8B8o6MB2Aevn+pRIH9zDALSR+6hhqVfa6fRwG/Qw9VUMSMW9VNg2CFc/MTIfabtdOVl9ODIJjpw==}
     engines: {node: '>=14.0.0'}
     hasBin: true
+
+  swapy@1.0.5:
+    resolution: {integrity: sha512-XEzy5HCw7yESb7QajKTBJ+NA/BL0kAKlE7XhSMPZawF740X4ws/5CFtXRsVDQ+EztISC759a9+DJM9mxjz4hXg==}
 
   swetrix@3.6.1:
     resolution: {integrity: sha512-Vz+X7hJqVdldz+nmkiEWb5IOsQMQ8s3yALguuGT+mt/Ii65Q+m2Haf1jW5IFVnS3PUCTteomzfrVfnD35Eod9w==}
@@ -16949,6 +16956,8 @@ snapshots:
       css-what: 6.1.0
       csso: 5.0.5
       picocolors: 1.1.1
+
+  swapy@1.0.5: {}
 
   swetrix@3.6.1: {}
 
