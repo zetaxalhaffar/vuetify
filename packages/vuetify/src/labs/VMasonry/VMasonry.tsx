@@ -4,6 +4,7 @@ import { createSwapy } from 'swapy'
 import './VMasonry.sass'
 
 // Composables
+import { useDisplay } from '@/composables/display'
 import { makeTagProps } from '@/composables/tag'
 
 // Utilities
@@ -12,6 +13,7 @@ import { genericComponent, propsFactory, useRender } from '@/util'
 
 // Types
 import type { CSSProperties, PropType } from 'vue'
+import type { DisplayBreakpoint } from '@/composables/display'
 
 export type VMasonrySlots = {
   content: {
@@ -41,22 +43,40 @@ const defaultSwapyOptions: SwapyOptions = {
   dragAxis: 'both' as SwapyDragAxis,
 }
 
+export type ResponsiveColumns = {
+  [key in DisplayBreakpoint]?: number
+} & {
+  default?: number
+}
+
+export type ResponsiveGap = {
+  [key in DisplayBreakpoint]?: number
+} & {
+  default?: number
+}
+
+export type ResponsiveWidth = {
+  [key in DisplayBreakpoint]?: number
+} & {
+  default?: number
+}
+
 export const makeVMasonryProps = propsFactory({
   items: {
     type: Array,
     default: () => [],
   },
+  columns: {
+    type: [Number, Object] as PropType<number | ResponsiveColumns>,
+    default: () => (null),
+  },
   gap: {
-    type: Number,
-    default: 2,
+    type: [Number, Object] as PropType<number | ResponsiveGap>,
+    default: () => ({ default: 2 }),
   },
-  defaultHeight: {
-    type: Number,
-    default: 200,
-  },
-  sequential: {
-    type: Boolean,
-    default: false,
+  width: {
+    type: [Number, Object] as PropType<number | ResponsiveWidth>,
+    default: () => ({ default: null }),
   },
   draggable: {
     type: Boolean,
@@ -75,6 +95,33 @@ export const makeVMasonryProps = propsFactory({
   ...makeTagProps({ tag: 'div' }),
 }, 'VMasonry')
 
+// Helper function to get responsive value based on current breakpoint
+function getResponsiveValue<T> (
+  value: T | ResponsiveColumns,
+  display: ReturnType<typeof useDisplay>,
+  fallback: T
+): T {
+  if (typeof value === 'object' && value !== null) {
+    const responsiveValue = value as ResponsiveColumns
+    const currentBreakpoint = display.name.value
+
+    // Check if there's a value for the current breakpoint
+    if (responsiveValue[currentBreakpoint] !== undefined) {
+      return responsiveValue[currentBreakpoint] as T
+    }
+
+    // Check for default value
+    if (responsiveValue.default !== undefined) {
+      return responsiveValue.default as T
+    }
+
+    // Fallback to the first available value or the fallback
+    const availableValues = Object.values(responsiveValue).filter(v => v !== undefined)
+    return (availableValues[0] ?? fallback) as T
+  }
+  return value as T
+}
+
 export const VMasonry = genericComponent<VMasonrySlots>()({
   name: 'VMasonry',
 
@@ -83,8 +130,22 @@ export const VMasonry = genericComponent<VMasonrySlots>()({
   emits: {
     swap: (value: any) => true,
   },
-  setup (props, { attrs, slots, emit }) {
+  setup (props, { slots, emit }) {
+    const display = useDisplay()
     const ref = useTemplateRef('masonry')
+
+    const responsiveColumns = computed(() =>
+      getResponsiveValue(props.columns, display, props.items.length)
+    )
+
+    const responsiveGap = computed(() =>
+      getResponsiveValue(props.gap, display, 2)
+    )
+
+    const responsiveDefaultWidth = computed(() =>
+      getResponsiveValue(props.width, display, null)
+    )
+
     const swapy = computed(() => {
       if (!ref.value) return null
       return createSwapy(ref.value! as HTMLElement, {
@@ -92,6 +153,7 @@ export const VMasonry = genericComponent<VMasonrySlots>()({
         ...props.dragableOptions,
       })
     })
+
     watchEffect(() => {
       if (swapy.value) {
         swapy.value.onSwap((event: any) => {
@@ -108,8 +170,6 @@ export const VMasonry = genericComponent<VMasonrySlots>()({
         })
         swapy.value.onSwapStart(event => {
           const currentItem = document.querySelector(`[data-swapy-item="${event.draggingItem}"]`)
-          // eslint-disable-next-line no-console
-          console.log(currentItem)
           currentItem?.classList.add('masonry__column--dragging')
         })
         swapy.value.onSwapEnd(event => {
@@ -117,11 +177,10 @@ export const VMasonry = genericComponent<VMasonrySlots>()({
           currentItem.forEach(item => {
             item.classList.remove('masonry__column--dragging')
           })
-          // eslint-disable-next-line no-console
-          console.log(event)
         })
       }
     })
+
     useRender(() => {
       const Tag = props.tag
       return (
@@ -131,32 +190,34 @@ export const VMasonry = genericComponent<VMasonrySlots>()({
             class="masonry"
             style={[
               {
-                '--masonry-columns': props.items.length,
-                '--masonry-column-width': `${props.defaultHeight}px`,
-                '--masonry-column-gap': `${props.gap}px`,
-                '--masonry-item-gap': `${props.gap}px`,
-                '--masonry-sequential': props.sequential ? '1' : '0',
+                '--masonry-columns': responsiveColumns.value,
+                '--masonry-column-width': responsiveDefaultWidth.value ? `${responsiveDefaultWidth.value}px` : '100%',
+                '--masonry-column-gap': `${responsiveGap.value}px`,
+                '--masonry-item-gap': `${responsiveGap.value}px`,
                 '--masonry-draggable': props.draggable ? '1' : '0',
               },
               props.style,
             ]}
           >
-            { props.items && props.items.map((item: any, index) => (
-              <div key={ `slot-${index}` } data-swapy-slot={ `a-${index}` }>
-                <div data-swapy-item={ `a-${index}` } class="masonry__column">
-                  { item.draggable && (
-                    <div key={ `slot-${index}-draggable` }>
-                      { slots.content?.({ item, index }) }
-                    </div>
-                  )}
-                  { !item.draggable && (
-                    <div key={ `slot-${index}-not-draggable` } data-swapy-no-drag={ item.draggable }>
-                      { slots.content?.({ item, index }) }
-                    </div>
-                  )}
+            { props.items && props.items.map((item: any, index) => {
+              const isItemDraggable = item.draggable !== undefined ? item.draggable : props.draggable
+
+              return (
+                <div key={ `slot-${index}` } data-swapy-slot={ `a-${index}` } class="masonry__column">
+                  <div data-swapy-item={ `a-${index}` }>
+                    { isItemDraggable ? (
+                      <div key={ `slot-${index}-draggable` }>
+                        { slots.content?.({ item, index }) }
+                      </div>
+                    ) : (
+                      <div key={ `slot-${index}-not-draggable` } data-swapy-no-drag>
+                        { slots.content?.({ item, index }) }
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </Tag>
       )
@@ -164,4 +225,4 @@ export const VMasonry = genericComponent<VMasonrySlots>()({
   },
 })
 
-export type VMasonry = InstanceType<typeof VMasonry>;
+export type VMasonry = InstanceType<typeof VMasonry>

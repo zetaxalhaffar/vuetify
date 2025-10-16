@@ -1,0 +1,18 @@
+{
+  "props": {
+    "items": "Array of items to display in the masonry layout.",
+    "columns": "Number of columns or responsive column configuration. Can be a number or an object with breakpoint-specific values and it will ignore the items prop.",
+    "gap": "Gap between items in pixels. Can be a number or an object with breakpoint-specific values. Defaults to 2.",
+    "width": "Width of columns in pixels. Can be a number or an object with breakpoint-specific values. Defaults to 200.",
+    "draggable": "Enable or disable drag functionality for reordering items.",
+    "style": "Custom CSS styles object to apply to the masonry container.",
+    "dragableOptions": "Configuration options for drag behavior. Accepts SwapyOptions object with animation, enabled, swapMode, autoScrollOnDrag, dragOnHold, and dragAxis properties.",
+    "tag": "HTML tag to use as the root element. Defaults to 'div'."
+  },
+  "events": {
+    "swap": "Emitted when items are swapped during drag operations. Provides fromItem, toItem, fromIndex, toIndex, fromSlot, and toSlot information."
+  },
+  "slots": {
+    "content": "Slot for rendering each masonry item. Provides item and index parameters."
+  }
+}

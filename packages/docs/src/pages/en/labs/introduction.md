@@ -84,6 +84,7 @@ The following is a list of available and up-and-coming components for use with L
 | [v-hotkey](/components/hotkey/)                      | A component to display hotkey bindings                     | [v3.9.0](/getting-started/release-notes/?version=v3.9.0)   |
 | [v-video](/components/videos/)                       | A customizable wrapper for native video element            | [v3.9.3](/getting-started/release-notes/?version=v3.9.3)   |
 | [v-pie](/components/pie-charts/)                     | A component to display data as interactive pie/donut chart | [v3.9.3](/getting-started/release-notes/?version=v3.9.3)   |
+| [v-masonry](/components/masonry/)                     | A component to display data as masonry layout with drag and drop support | [v3.9.3](/getting-started/release-notes/?version=v3.9.3)   |
 
 ::: warning
 Lab component APIs are **NOT** finalized and can and will change. You should **EXPECT** for things to break during the course of development.
